@@ -1,0 +1,16 @@
+{
+  "name": "xi_device_list",
+  "version": "1.0.0",
+  "description": "Xively Device List",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xi",
+    "device",
+    "list"
+  ],
+  "author": "Kamel Aouidef <kamel.aouidef@logmein.com>",
+  "license": "ISC"
+}

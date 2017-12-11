@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>XI Account details</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- Accordion ui -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+
+<!-- <link rel="stylesheet" type="text/css" href="css/styles.css"> -->
+<style>
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+
+/****** LOGIN MODAL ******/
+.loginmodal-container {
+  padding: 30px;
+  max-width: 350px;
+  width: 100% !important;
+  background-color: #F7F7F7;
+  margin: 0 auto;
+  border-radius: 2px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  font-family: roboto;
+}
+
+.loginmodal-container h1 {
+  text-align: center;
+  font-size: 1.8em;
+  font-family: roboto;
+}
+
+.loginmodal-container input[type=submit] {
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.loginmodal-container input[type=text], input[type=password] {
+  height: 44px;
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: 10px;
+  -webkit-appearance: none;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-top: 1px solid #c0c0c0;
+  /* border-radius: 2px; */
+  padding: 0 8px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.loginmodal-container input[type=text]:hover, input[type=password]:hover {
+  border: 1px solid #b9b9b9;
+  border-top: 1px solid #a0a0a0;
+  -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.loginmodal {
+  text-align: center;
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  height: 36px;
+  padding: 0 8px;
+/* border-radius: 3px; */
+/* -webkit-user-select: none;
+  user-select: none; */
+}
+
+.loginmodal-submit {
+  /* border: 1px solid #3079ed; */
+  border: 0px;
+  color: #fff;
+  text-shadow: 0 1px rgba(0,0,0,0.1); 
+  background-color: #4d90fe;
+  padding: 17px 0px;
+  font-family: roboto;
+  font-size: 14px;
+  /* background-image: -webkit-gradient(linear, 0 0, 0 100%,   from(#4d90fe), to(#4787ed)); */
+}
+
+.loginmodal-submit:hover {
+  /* border: 1px solid #2f5bb7; */
+  border: 0px;
+  text-shadow: 0 1px rgba(0,0,0,0.3);
+  background-color: #357ae8;
+  /* background-image: -webkit-gradient(linear, 0 0, 0 100%,   from(#4d90fe), to(#357ae8)); */
+}
+
+.loginmodal-container a {
+  text-decoration: none;
+  color: #666;
+  font-weight: 400;
+  text-align: center;
+  display: inline-block;
+  opacity: 0.6;
+  transition: opacity ease 0.5s;
+} 
+
+.login-help{
+  font-size: 12px;
+} 
+</style>
+</head>
+<body>
+
+<a href="#" data-toggle="modal" data-target="#login-modal">Click here to Login in to your Xively account </a>
+
+<!-- START OF LOGIN SCREEN -->
+<div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+	<div class="modal-dialog">
+		<div class="loginmodal-container">
+			<h1>Login to Your Xively Account</h1>
+			<br>
+			<form>
+				<input id="email" type="text" name="email" placeholder="Email address">
+				<input id="password" type="password" name="password" placeholder="Password"> 
+				<input id="accountId" type="text" name="accountId" placeholder="Your Xively Account ID">
+				<!-- <input type="submit" name="login" class="login loginmodal-submit" value="Login"> -->
+				<input id="login" type="submit" name="login" class="login loginmodal-submit" value="Login">
+			</form>
+
+			<div class="login-help">
+				<a href="https://app.xively.com/login">Register</a> - <a href="https://app.xively.com/forgotpassword">Forgot Password</a>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- END OF LOGIN IN SCREEN -->
+
+<!-- START OF XIVELY SCREEN -->
+
+<!-- Modal -->
+<div class="modal fade" id="device_templates" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">My Device Templates</h4>
+      </div>
+      <div class="modal-body">
+      <!--  List of device templates -->
+	 	<div class="form-group">
+	      <!-- <label for="sel1">Select list (select one):</label> -->
+	      <select id="selectdevicetemplate" name="selectdevicetemplate" class="form-control"></select>
+	    </div>
+	    
+	    <!-- Device list of a template -->
+	    <div id="templatedevicelist">
+	    	<div class="form-group">
+	    		<select id="selectdevice" name="selectdevice" class="form-control"></select>
+	    	</div>
+	    </div>
+	    
+	    <!-- Device Channels Data Chart -->
+		<div class="panel-group" id="channels" role="tablSist" aria-multiselectable="true">
+			
+		</div>
+	
+      </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+        <button id="logout" type="button" class="btn btn-primary" data-dismiss="modal">Logout</button>
+        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END OF XIVELY SCREEN -->
+
+<!-- Include JQuery library from CDN -->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+<!-- CopnvasJS charts -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- CopnvasJS charts -->
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<script type="text/javascript">
+
+//$('#devicetemplate').hide();
+$('#templatedevicelist').hide();
+
+$(".close").click(function () {
+	clearSession();
+});
+
+$("#logout").click(function() {
+	clearSession();
+});
+
+function clearSession() {
+	$("#selectdevicetemplate").empty();
+	$("#selectdevice").empty();
+	$("#channels").empty();
+}
+
+/* START OF TO DELETE AFTER TESTING */
+setDefaultValues();
+
+function setDefaultValues() {
+	document.getElementById("email").defaultValue = "mbrunner@logmein.com";
+	document.getElementById("password").defaultValue = "t5zYeH!bqBe!%M9x";
+	document.getElementById("accountId").defaultValue = "dc92460c-544d-4f29-aba0-98c8bea362e4";
+}
+/* END OF TO DELETE AFTER TESTING */
+
+ const xi_id_url = "https://id.xively.eu/api/v1/auth/login-user";
+ const xi_bp_url = "https://blueprint.xively.eu/api/v1/";
+ const xi_ts_url = "https://timeseries.xively.eu/api/v4/data/xi/blue/v1/";
+
+ // Create a base class
+ function user_account_data() {
+ 	emailAddress = "";
+ 	password = "";
+ 	accountId = "";
+ 	jwt = ""; // JSON Web Token
+ 	
+ 	deviceTemplates: [];
+ 	organizations: [];
+     devices: [];
+ 	selectedDevice: null;
+ 	selectedDeviceData: [];
+ 	selectedChannel: null;
+ 	selectedDeviceChannels: [];
+ }
+
+ // Create sub-class and extend UserProperties class.
+ user_related_data.prototype = new user_account_data();
+ user_related_data.constructor = user_related_data;
+
+ function user_related_data (strProperty) {
+     // Call super constructor.
+     user_account_data.call( this );
+     this.UserProperty = strProperty;
+ }
+
+ /* 
+  * User login in
+  */
+ $("#login").click(function (e) {
+ 	
+ 	console.log("Logging user in...");
+ 	
+ 	if ($('input#email').val() !== "" && $('input#password').val() !== "" && $('input#accountId').val() !== ""){
+ 	    
+ 		e.preventDefault();
+ 		
+ 		// Create two instances of sub-class.
+ 	    userAccountData = new user_related_data( Math.round(Math.exp(Math.random()*Math.log(10000000-0+1)))+0 );
+ 	    
+ 	    // Update the simple property in the base class.
+ 	    userAccountData.emailAddress = document.getElementById("email").value;
+ 	    userAccountData.password = document.getElementById("password").value;
+ 	    userAccountData.accountId = document.getElementById("accountId").value;
+ 	    
+ 	 	// Log updated property profiles.
+ 		var data = JSON.stringify({
+ 			"emailAddress": userAccountData.emailAddress,
+ 	        "password": userAccountData.password,
+ 	        "accountId": userAccountData.accountId,
+ 	        "renewalType": ""
+ 		});
+ 		
+ 		var headers = new Headers();
+         headers.append("Content-Type", "application/json");
+         headers.append("Content-Length", data.length.toString());
+         
+         fetch(xi_id_url, {
+         	method: "POST",
+             headers: headers,
+             body: data
+         })
+         .then(function(response) { return response.json(); })
+         .then(function(data) {
+         	
+         	console.log("User logged in successfully");
+             
+             userAccountData.jwt = data.jwt;
+             get_device_templates(); // Get the device template list
+             //get_organisations();
+             $('#login-modal').modal('hide');
+             $('#device_templates').modal('show');
+             
+         }.bind(this)).catch(() => {
+         	alert("Connection failed");
+         });
+ 	}
+ });
+ 
+ 
+ /*
+  * Get the list of device templates
+  * returns the list of device templates within an account
+  */
+ function get_device_templates() {
+ 	
+ 	console.log("Getting device templates...");
+ 	
+ 	 var headers = new Headers();
+      headers.append("Authorization", "Bearer " + userAccountData.jwt);
+      headers.append("Content-Type", "application/json");
+      
+      fetch(xi_bp_url+'devices/templates?accountId=' + userAccountData.accountId, {
+     	 method: "GET",
+          headers: headers,
+          cache: "no-store"
+      })
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
+     	 console.log("Getting the devices templates: done");
+           
+     	 userAccountData.deviceTemplates = data.deviceTemplates.results;
+         $select = $("#selectdevicetemplate").empty();
+         $select.append('<option value="" disabled selected>Choose one of the devices templates...</option>');
+         $.each(userAccountData.deviceTemplates, function(key, val){
+        	 $select.append('<option id="' + key + '"' + ' templateId="' + val.id + '">' + val.name + '</option>');
+        	 //console.log(key);
+         });
+          //console.log(userAccountData.deviceTemplates);
+          //$('#devicetemplate').show();
+          
+          //get_organisations(accountObj);
+      }.bind(this)).catch(() => {
+          alert("Couldn't fetch the device templates");	
+      });
+ }
+
+ /*
+  * Select a devices list of a device template
+  * This gets all devices that are from a specific template
+  */
+ $("#selectdevicetemplate").change(function(){
+ 	
+ 	var device_template_id = $(this).children(":selected").attr("templateId");
+
+ 	var headers = new Headers();
+     headers.append("Authorization", "Bearer " + userAccountData.jwt);
+     headers.append("Content-Type", "application/json");
+     
+     fetch(xi_bp_url+'devices?accountId=' + userAccountData.accountId
+             + '&deviceTemplateId=' + device_template_id
+             + '&meta=true&results=true&page=1&pageSize=100&sortOrder=asc&', {
+         method: "GET",
+         headers: headers,
+         cache: "no-store"
+     })
+     .then(function(response) { return response.json(); })
+     .then(function(data) {
+         console.log("Getting the device list: done");
+         //console.log(data);
+         userAccountData.devices =  data.devices.results;
+         
+         $select = $("#selectdevice").empty();
+         $select.append('<option value="" disabled selected>Choose one of the devices...</option>');
+         $.each(userAccountData.devices, function(key, val){
+         	$select.append('<option id="' + key + '"' + ' deviceId="' + userAccountData.devices[key].id + '">' + userAccountData.devices[key].serialNumber + '</option>');
+         })
+
+         //console.log(userAccountData.devices);
+         $('#templatedevicelist').show();
+     }.bind(this)).catch(() => {
+         alert("Couldn't fetch devices for the selected template");
+     });
+     		
+ });
+ 
+ $("#selectdevice").change(function(){
+		
+		var device_id = $(this).children(":selected").attr("deviceId");
+		
+		console.log("Getting a device data for id: " + device_id); 
+
+		var headers = new Headers();
+	    headers.append("Authorization", "Bearer " + userAccountData.jwt);
+	    headers.append("Content-Type", "application/json");
+	    
+	    fetch(xi_bp_url+'devices/' + device_id, {
+	        method: "GET",
+	        headers: headers,
+	        cache: "no-store"
+	    })
+	    .then(function(response) { return response.json(); })
+	    .then(function(data) {
+	        console.log("Device selected: done");
+	        userAccountData.selectedDeviceData = data;
+	        userAccountData.selectedDevice = data.device;
+	        userAccountData.selectedDeviceChannels = data.device.channels;
+	      	//console.log("Channel: " + JSON.stringify(data.device.channels));
+	      	console.log(data);
+	      	
+	      	$channels = $("#channels").empty();
+	        $.each(userAccountData.selectedDeviceChannels, function(key, val){
+	         	
+	        	if (userAccountData.selectedDeviceChannels[key].persistenceType == "timeSeries") {
+
+	        		// Capitalise the first letter of the channel for display only
+	        		var channel_selected_capitalised = (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + 
+	        			(userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1);
+	        		//$channels.append('<h3>' + channel_selected_capitalised + '</h3>' + '<div id="chartContainer-' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" deviceId="' + userAccountData.selectedDevice.id + '" name="' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" style="height: 300px!important; width: 100%;">' + "The content" + key + '</div>');
+	        		$channels.append('<div class="panel panel-primary">' + 
+	                  '<div class="panel-heading" role="tab" id="heading' + key + '">' +
+	                  '<h3 class="panel-title">' +
+	                  '<a role="button" data-toggle="collapse" data-parent="#channels" href="#collapse' + key + '" aria-expanded="true" aria-controls="collapse' + 
+	                  key + 
+	                  '" deviceId="' + userAccountData.selectedDevice.id + 
+	                  '" name="' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '">' + 
+	                  (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + (userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1) + 
+	                  '</a>' +
+	                  '</h3>' +
+	                  '</div>' +
+	                  '<div id="collapse' + key + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading' + key + '">' +
+	                  '<div class="panel-body">' +
+	                  '<div id="chartContainer-' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" style="height: 300px; width: 100%;">' +
+	                  '</div>' +
+	                  '</div>' +
+	                  '</div>' +
+	                  '</div>');
+	        		//get_device_channels_data(userAccountData.selectedDevice.id, userAccountData.selectedDeviceChannels[key].channelTemplateName);
+	        	} 
+	        });
+
+	        var icons = {
+	        		header: "ui-icon-circle-arrow-e",
+	        	    activeHeader: "ui-icon-circle-arrow-s"
+	        };
+	        $("#channels").accordion({
+	        	icons: icons,
+	        	header: "h3",
+	        	collapsible: true,
+	        	active: false
+	        }); 
+
+	        $('#channels h3 a').on('click', function() {
+	            console.log($(this).attr("id"));
+	            //var optionClicked = $(this);
+	            get_device_channels_data($(this).attr("deviceId"), $(this).attr("name"));
+	            
+	        });
+	        $('#channels').accordion("refresh");
+
+	    }.bind(this)).catch(() => {
+	    	alert("Couldn't fetch device channels data on the selected device");
+	    });
+	});
+
+	function get_device_channels_data(device_id, channel_name) {
+		
+		console.log("Getting the device's channel " + channel_name + " data ...");
+		
+		var chartData = []; // chart
+		var dataPoints = []; // chart
+		var channel_name_capitalised = channel_name.charAt(0).toUpperCase() + channel_name.slice(1);
+		var dataSeries = { type: "line", showInLegend: true, legendText: channel_name_capitalised}; // chart
+		
+		var char_container = "chartContainer-"+channel_name;
+		
+		var headers = new Headers();
+	    headers.append("Authorization", "Bearer " + userAccountData.jwt);
+	    headers.append("Content-Type", "application/json");
+	    
+	    fetch(xi_ts_url + userAccountData.accountId + '/d/' + device_id + "/" + channel_name + '/latest?pageSize=100', {
+	        method: "GET",
+	        headers: headers,
+	        cache: "no-store"
+	    })
+	    .then(function(response) { return response.json(); })
+	    .then(function(data) {
+	        console.log(channel_name + " channel data published: done");
+	        //console.log(data.result);
+	        
+	        $.each(data.result, function(key, val){
+	        	//console.log(data.result[key].time + " " + data.result[key].numericValue);
+	        	//console.log(data.result[key].numericValue);
+	        	
+	         	dataPoints.push({
+	         		x: key, //new Date(data.result[key].time),
+	            	y: data.result[key].numericValue
+	            }); 
+	         	console.log(new Date(data.result[key].time) + " - " + data.result[key].numericValue);
+	         	//console.log(data.result[key].numericValue);
+	        });
+	        //console.log(dataPoints);
+	        dataSeries.dataPoints = dataPoints;
+	        chartData.push(dataSeries);
+	        
+	        console.log(chartData);
+	        //var char_container = "chartContainer-"+channel_name;
+			
+	 		var chart = new CanvasJS.Chart(char_container, {
+				zoomEnabled : true,
+				animationEnabled : true,
+				title : {
+					text : "Device " + channel_name_capitalised + " variations! Zoom-in And Observe Axis Labels"
+				},
+				axisX : {
+					labelAngle : 30,
+					//valueFormatString : "DD/MM/YY hh:mm:ss", // valueFormatString : "DD/MM/YY hh:mm:ssz"
+					title: "" // Reading number
+				},
+				axisY : {
+					includeZero : true,
+					title: "" // i.e. °C
+				},
+				data : chartData
+			});
+	 		var char_container_id = "#" + char_container;
+			chart.render();       
+	        //userAccountData.selectedDevice = device_id;
+	        //userAccountData.selectedDeviceChannels = data;
+
+	    }.bind(this))
+	    .catch(() => {
+	    	//$("#"+char_container).empty();
+	    	$('<P>Couldn\'t fetch device channel data</P>').appendTo("#"+char_container);
+	        console.log("Couldn't fetch device channel data");
+	    });
+	}
+</script>
+
+</body>
+</html>
