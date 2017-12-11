@@ -4,9 +4,6 @@ var PORT = process.env.PORT || 8080;
 var http = require('http');
 var fs = require('fs');
 
-var express = require('express');
-var server = express();
-
 /*server.use(express.static(__dirname + '/public'));*/
 
 /* 
