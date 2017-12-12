@@ -292,7 +292,7 @@ function clearSession() {
              get_device_templates(); // Get the device template list
              //get_organisations();
              $('#login-modal').modal('hide');
-             $('#device_templates').modal('show');
+             //$('#device_templates').modal('show');
              
          }.bind(this)).catch(() => {
          	alert("Connection failed");
@@ -333,7 +333,9 @@ function clearSession() {
           //$('#devicetemplate').show();
           
           //get_organisations(accountObj);
+         $('#device_templates').modal('show');
       }.bind(this)).catch(() => {
+    	  clearSession();
           alert("Couldn't fetch the device templates");	
       });
  }
