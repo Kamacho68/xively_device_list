@@ -146,7 +146,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">My Device Templates</h4>
+        <h4 class="modal-title" id="myModalLabel">Device Information</h4>
       </div>
       <div class="modal-body">
       <!--  List of device templates -->
@@ -163,6 +163,11 @@
 	    </div>
 	    
 	    <!-- Device Channels Data Chart -->
+	    <div id="channelslbl" class="panel panel-primary">
+	    	<div class="panel-heading">
+	    		<label for="channelslbl"></label>
+	    	</div>
+	    </div>
 		<div class="panel-group" id="channels" role="tablSist" aria-multiselectable="true">
 			
 		</div>
@@ -194,12 +199,11 @@
 <script type="text/javascript">
 
 $(document).ready(function () {
-
     $('#login-modal').modal('show');
 });
 
-//$('#devicetemplate').hide();
 $('#templatedevicelist').hide();
+$('#channelslbl').hide();
 
 $(".close").click(function () {
 	clearSession();
@@ -214,6 +218,7 @@ function clearSession() {
 	$("#selectdevice").empty();
 	$("#channels").empty();
 }
+
 
 
 
@@ -290,10 +295,9 @@ function clearSession() {
              
              userAccountData.jwt = data.jwt;
              get_device_templates(); // Get the device template list
-             //get_organisations();
-             $('#login-modal').modal('hide');
-             //$('#device_templates').modal('show');
              
+             $('#login-modal').modal('hide');
+           get_organisations(); // Get the list of groups/organisations 
          }.bind(this)).catch(() => {
          	alert("Connection failed");
          });
@@ -327,12 +331,7 @@ function clearSession() {
          $select.append('<option value="" disabled selected>Choose one of the devices templates...</option>');
          $.each(userAccountData.deviceTemplates, function(key, val){
         	 $select.append('<option id="' + key + '"' + ' templateId="' + val.id + '">' + val.name + '</option>');
-        	 //console.log(key);
          });
-          //console.log(userAccountData.deviceTemplates);
-          //$('#devicetemplate').show();
-          
-          //get_organisations(accountObj);
          $('#device_templates').modal('show');
       }.bind(this)).catch(() => {
     	  clearSession();
@@ -362,174 +361,195 @@ function clearSession() {
      .then(function(response) { return response.json(); })
      .then(function(data) {
          console.log("Getting the device list: done");
-         //console.log(data);
          userAccountData.devices =  data.devices.results;
          
          $select = $("#selectdevice").empty();
          $select.append('<option value="" disabled selected>Choose one of the devices...</option>');
          $.each(userAccountData.devices, function(key, val){
          	$select.append('<option id="' + key + '"' + ' deviceId="' + userAccountData.devices[key].id + '">' + userAccountData.devices[key].serialNumber + '</option>');
-         })
-
-         //console.log(userAccountData.devices);
+         });
          $('#templatedevicelist').show();
+         
      }.bind(this)).catch(() => {
          alert("Couldn't fetch devices for the selected template");
      });
      		
  });
  
+ /*
+  * On selected device 
+  */
  $("#selectdevice").change(function(){
 		
-		var device_id = $(this).children(":selected").attr("deviceId");
+	var device_id = $(this).children(":selected").attr("deviceId");
+	
+	console.log("Getting a device data for id: " + device_id); 
+
+	var headers = new Headers();
+    headers.append("Authorization", "Bearer " + userAccountData.jwt);
+    headers.append("Content-Type", "application/json");
+    
+    fetch(xi_bp_url+'devices/' + device_id, {
+        method: "GET",
+        headers: headers,
+        cache: "no-store"
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        console.log("Device selected: done");
+        userAccountData.selectedDeviceData = data;
+        userAccountData.selectedDevice = data.device;
+        userAccountData.selectedDeviceChannels = data.device.channels;
+      	//console.log("Channel: " + JSON.stringify(data.device.channels));
+      	$("label[for='channelslbl']").html(" Time Series available for device Id: " + userAccountData.selectedDevice.id);
+      	$('#channelslbl').show();
+      	
+      	$channels = $("#channels").empty();
+        $.each(userAccountData.selectedDeviceChannels, function(key, val){
+         	
+        	if (userAccountData.selectedDeviceChannels[key].persistenceType == "timeSeries") {
+
+        		// Capitalise the first letter of the channel for display only
+        		var channel_selected_capitalised = (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + 
+        			(userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1);
+
+        		$channels.append('<div class="panel panel-primary">' + 
+                  '<div class="panel-heading" role="tab" id="heading' + key + '">' +
+                  '<h3 class="panel-title">' +
+                  '<a role="button" data-toggle="collapse" data-parent="#channels" href="#collapse' + key + '" aria-expanded="true" aria-controls="collapse' + 
+                  key + 
+                  '" deviceId="' + userAccountData.selectedDevice.id + 
+                  '" name="' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '">' + 
+                  (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + (userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1) + 
+                  '</a>' +
+                  '</h3>' +
+                  '</div>' +
+                  '<div id="collapse' + key + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading' + key + '">' +
+                  '<div class="panel-body">' +
+                  '<div id="chartContainer-' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" style="height: 300px; width: 100%;">' +
+                  '</div>' +
+                  '</div>' +
+                  '</div>' +
+                  '</div>');
+        	} 
+        });
+
+        var icons = {
+        		header: "ui-icon-circle-arrow-e",
+        	    activeHeader: "ui-icon-circle-arrow-s"
+        };
+        $("#channels").accordion({
+        	icons: icons,
+        	header: "h3",
+        	collapsible: true,
+        	active: false
+        }); 
+
+        $('#channels h3 a').on('click', function() {
+            console.log($(this).attr("id"));
+            get_device_channels_data($(this).attr("deviceId"), $(this).attr("name"));
+            
+        });
+        $('#channels').accordion("refresh");
+
+    }.bind(this)).catch(() => {
+    	alert("Couldn't fetch device channels data on the selected device");
+    });
+});
+
+/*
+ * Get device channels
+ */
+function get_device_channels_data(device_id, channel_name) {
+	
+	console.log("Getting the device's channel " + channel_name + " data ...");
+	
+	var chartData = []; // chart
+	var dataPoints = []; // chart
+	var channel_name_capitalised = channel_name.charAt(0).toUpperCase() + channel_name.slice(1);
+	var dataSeries = { type: "line", showInLegend: true, legendText: channel_name_capitalised}; // chart
+	
+	var char_container = "chartContainer-"+channel_name;
+	
+	var headers = new Headers();
+    headers.append("Authorization", "Bearer " + userAccountData.jwt);
+    headers.append("Content-Type", "application/json");
+    
+    fetch(xi_ts_url + userAccountData.accountId + '/d/' + device_id + "/" + channel_name + '/latest?pageSize=100', {
+        method: "GET",
+        headers: headers,
+        cache: "no-store"
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        console.log(channel_name + " channel data published: done");
+        
+        $.each(data.result, function(key, val){
+        	
+         	dataPoints.push({
+         		x: key, //new Date(data.result[key].time),
+            	y: data.result[key].numericValue
+            }); 
+        });
+        //console.log(dataPoints);
+        dataSeries.dataPoints = dataPoints;
+        chartData.push(dataSeries);
 		
-		console.log("Getting a device data for id: " + device_id); 
+ 		var chart = new CanvasJS.Chart(char_container, {
+			zoomEnabled : true,
+			animationEnabled : true,
+			title : {
+				text : "Device " + channel_name_capitalised + " variations! Zoom-in And Observe Axis Labels"
+			},
+			axisX : {
+				labelAngle : 30,
+				//valueFormatString : "DD/MM/YY hh:mm:ss", // valueFormatString : "DD/MM/YY hh:mm:ssz"
+				title: "" // Reading number
+			},
+			axisY : {
+				includeZero : true,
+				title: "" // i.e. °C
+			},
+			data : chartData
+		});
+ 		var char_container_id = "#" + char_container;
+		chart.render();       
+        //userAccountData.selectedDevice = device_id;
+        //userAccountData.selectedDeviceChannels = data;
 
-		var headers = new Headers();
-	    headers.append("Authorization", "Bearer " + userAccountData.jwt);
-	    headers.append("Content-Type", "application/json");
-	    
-	    fetch(xi_bp_url+'devices/' + device_id, {
-	        method: "GET",
-	        headers: headers,
-	        cache: "no-store"
-	    })
-	    .then(function(response) { return response.json(); })
-	    .then(function(data) {
-	        console.log("Device selected: done");
-	        userAccountData.selectedDeviceData = data;
-	        userAccountData.selectedDevice = data.device;
-	        userAccountData.selectedDeviceChannels = data.device.channels;
-	      	//console.log("Channel: " + JSON.stringify(data.device.channels));
-	      	console.log(data);
-	      	
-	      	$channels = $("#channels").empty();
-	        $.each(userAccountData.selectedDeviceChannels, function(key, val){
-	         	
-	        	if (userAccountData.selectedDeviceChannels[key].persistenceType == "timeSeries") {
+    }.bind(this))
+    .catch(() => {
+    	$('<P>Couldn\'t fetch device channel data</P>').appendTo("#"+char_container);
+        console.log("Couldn't fetch device channel data");
+    });
+}
 
-	        		// Capitalise the first letter of the channel for display only
-	        		var channel_selected_capitalised = (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + 
-	        			(userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1);
-	        		//$channels.append('<h3>' + channel_selected_capitalised + '</h3>' + '<div id="chartContainer-' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" deviceId="' + userAccountData.selectedDevice.id + '" name="' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" style="height: 300px!important; width: 100%;">' + "The content" + key + '</div>');
-	        		$channels.append('<div class="panel panel-primary">' + 
-	                  '<div class="panel-heading" role="tab" id="heading' + key + '">' +
-	                  '<h3 class="panel-title">' +
-	                  '<a role="button" data-toggle="collapse" data-parent="#channels" href="#collapse' + key + '" aria-expanded="true" aria-controls="collapse' + 
-	                  key + 
-	                  '" deviceId="' + userAccountData.selectedDevice.id + 
-	                  '" name="' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '">' + 
-	                  (userAccountData.selectedDeviceChannels[key].channelTemplateName).charAt(0).toUpperCase() + (userAccountData.selectedDeviceChannels[key].channelTemplateName).slice(1) + 
-	                  '</a>' +
-	                  '</h3>' +
-	                  '</div>' +
-	                  '<div id="collapse' + key + '" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading' + key + '">' +
-	                  '<div class="panel-body">' +
-	                  '<div id="chartContainer-' + userAccountData.selectedDeviceChannels[key].channelTemplateName + '" style="height: 300px; width: 100%;">' +
-	                  '</div>' +
-	                  '</div>' +
-	                  '</div>' +
-	                  '</div>');
-	        		//get_device_channels_data(userAccountData.selectedDevice.id, userAccountData.selectedDeviceChannels[key].channelTemplateName);
-	        	} 
-	        });
+/*
+ * Get the list of organisations
+ */
+function get_organisations() {
+	
+	console.log("Getting organisations...");
+	
+	var headers = new Headers();
+    headers.append("Authorization", "Bearer " + userAccountData.jwt);
+    headers.append("Content-Type", "application/json");
+	//console.log(accountObj.deviceTemplates);
+	fetch(xi_bp_url+'organizations?accountId=' + userAccountData.accountId, {
+		method: "GET",
+        headers: headers,
+        cache: "no-store"
+	})
+	.then(function(response) { return response.json(); })
+    .then(function(data) {
+    	console.log("Getting the organisations: done");
 
-	        var icons = {
-	        		header: "ui-icon-circle-arrow-e",
-	        	    activeHeader: "ui-icon-circle-arrow-s"
-	        };
-	        $("#channels").accordion({
-	        	icons: icons,
-	        	header: "h3",
-	        	collapsible: true,
-	        	active: false
-	        }); 
-
-	        $('#channels h3 a').on('click', function() {
-	            console.log($(this).attr("id"));
-	            //var optionClicked = $(this);
-	            get_device_channels_data($(this).attr("deviceId"), $(this).attr("name"));
-	            
-	        });
-	        $('#channels').accordion("refresh");
-
-	    }.bind(this)).catch(() => {
-	    	alert("Couldn't fetch device channels data on the selected device");
-	    });
-	});
-
-	function get_device_channels_data(device_id, channel_name) {
-		
-		console.log("Getting the device's channel " + channel_name + " data ...");
-		
-		var chartData = []; // chart
-		var dataPoints = []; // chart
-		var channel_name_capitalised = channel_name.charAt(0).toUpperCase() + channel_name.slice(1);
-		var dataSeries = { type: "line", showInLegend: true, legendText: channel_name_capitalised}; // chart
-		
-		var char_container = "chartContainer-"+channel_name;
-		
-		var headers = new Headers();
-	    headers.append("Authorization", "Bearer " + userAccountData.jwt);
-	    headers.append("Content-Type", "application/json");
-	    
-	    fetch(xi_ts_url + userAccountData.accountId + '/d/' + device_id + "/" + channel_name + '/latest?pageSize=100', {
-	        method: "GET",
-	        headers: headers,
-	        cache: "no-store"
-	    })
-	    .then(function(response) { return response.json(); })
-	    .then(function(data) {
-	        console.log(channel_name + " channel data published: done");
-	        //console.log(data.result);
-	        
-	        $.each(data.result, function(key, val){
-	        	//console.log(data.result[key].time + " " + data.result[key].numericValue);
-	        	//console.log(data.result[key].numericValue);
-	        	
-	         	dataPoints.push({
-	         		x: key, //new Date(data.result[key].time),
-	            	y: data.result[key].numericValue
-	            }); 
-	         	console.log(new Date(data.result[key].time) + " - " + data.result[key].numericValue);
-	         	//console.log(data.result[key].numericValue);
-	        });
-	        //console.log(dataPoints);
-	        dataSeries.dataPoints = dataPoints;
-	        chartData.push(dataSeries);
-	        
-	        console.log(chartData);
-	        //var char_container = "chartContainer-"+channel_name;
-			
-	 		var chart = new CanvasJS.Chart(char_container, {
-				zoomEnabled : true,
-				animationEnabled : true,
-				title : {
-					text : "Device " + channel_name_capitalised + " variations! Zoom-in And Observe Axis Labels"
-				},
-				axisX : {
-					labelAngle : 30,
-					//valueFormatString : "DD/MM/YY hh:mm:ss", // valueFormatString : "DD/MM/YY hh:mm:ssz"
-					title: "" // Reading number
-				},
-				axisY : {
-					includeZero : true,
-					title: "" // i.e. °C
-				},
-				data : chartData
-			});
-	 		var char_container_id = "#" + char_container;
-			chart.render();       
-	        //userAccountData.selectedDevice = device_id;
-	        //userAccountData.selectedDeviceChannels = data;
-
-	    }.bind(this))
-	    .catch(() => {
-	    	//$("#"+char_container).empty();
-	    	$('<P>Couldn\'t fetch device channel data</P>').appendTo("#"+char_container);
-	        console.log("Couldn't fetch device channel data");
-	    });
-	}
+    	userAccountData.organizations = data.organizations.results;
+        console.log(userAccountData.organizations);
+    }.bind(this)).catch(() => {
+        alert("Couldn't fetch the organisations");
+    });
+}
 </script>
 
 </body>
