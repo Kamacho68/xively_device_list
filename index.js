@@ -14,7 +14,7 @@ fs.readFile('xi_index.html', function(err, html){
 	if(err){
 		throw err;
 	}
-	server = http.createServer(function (req, res){
+	var server = http.createServer(function (req, res){
 		res.statusCode = 200;
 		res.setHeader('Content-Type','text/html');
 		res.write(html);
